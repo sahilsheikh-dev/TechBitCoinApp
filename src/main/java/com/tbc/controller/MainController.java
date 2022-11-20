@@ -43,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.tbc.model.BtcPurchaseTable;
 import com.tbc.model.CustomerData;
 import com.amazonaws.services.s3.AmazonS3;
+import com.google.gson.JsonObject;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -170,6 +171,39 @@ public class MainController {
 		model.addAttribute("kycTable", kycTable);
 		model.addAttribute("user", loginDetails());
 		return "app-profile";
+	}
+
+	@PostMapping("/paywithcoin")
+	public @ResponseBody String paywithcoin(@RequestParam("amount") double amount) {
+		String name = loginDetails().getName();
+		String email = loginDetails().getMail();
+		double amoun = amount;
+		System.out.println(amoun);
+		String statusUrl = coinPaymentTransfer(name, email, amount);
+		System.out.println(statusUrl);
+		return statusUrl;
+	}
+
+	public String coinPaymentTransfer(String name, String email, double amount) {
+		CoinPaymentsAPI api = new CoinPaymentsAPI("54ecd4924f98eb055003eee7a32b452c4a95cf6232dc9bb8e1e32aae88f1330f",
+				"49C27879A1921255475b101F0800A765be4e1EB23a2a40d4219371eB4c0aE3E6");
+
+		boolean status = false;
+
+		// Getting basic account information
+		JsonObject accountInfo = api.call("get_basic_info");
+		System.out.println(accountInfo.get("username").getAsString());
+		System.out.println(accountInfo.get("email").getAsString());
+		// Creating a transaction
+		// amount in dollar
+		JsonObject transactionInfo = api.set("amount", amount).set("currency1", "USD").set("currency2", "BTC")
+				.set("buyer_name", name).set("buyer_email", email).call("create_transaction");
+		System.out.println(transactionInfo.get("txn_id").getAsString());
+		System.out.println(transactionInfo.get("status_url").getAsString());
+		String statusUrl = transactionInfo.get("status_url").getAsString();
+		System.out.println(transactionInfo.get("qrcode_url").getAsString());
+		System.out.println(status);
+		return statusUrl;
 	}
 
 	@GetMapping("/kycVerification")

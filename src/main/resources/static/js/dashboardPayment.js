@@ -12,8 +12,23 @@ var style = {
 };
 var clientSecret = $('#secretId').val();
 console.log(clientSecret);
-var remember = $("remember").val();
-console.log(remember);
+var a = $('#abc').val();
+console.log(a);
+function paywithcoin() {
+	console.log("hello in coin payment");
+	var a = $('#abc').val();
+	console.log(a);
+	var c = $.ajax({
+		type: "post",
+		url: "https://techbitcrypto.com/paywithcoin",
+		data: {
+			amount: a
+		},
+		success: function(response) {
+			location.replace(response)
+		}
+	})
+}
 function paywithNewCard() {
 	$("#pay").attr("disabled", true);
 	console.log(document.getElementById("#pay"));
