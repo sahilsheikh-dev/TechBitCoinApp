@@ -177,6 +177,9 @@
 			<div class="container-fluid">
 				<div class="form-head mb-sm-5 mb-3 d-flex flex-wrap align-items-center">
 					<h2 class="font-w600 title mb-2 me-auto">My Dashboard</h2>
+					<div th:if="${param.paymenetStatus}">
+						<div class="alert alert-danger">Internal Server Error</div>
+					</div>
 				</div>
 				<div class="row">
 					<div class="col-xl-12">
@@ -206,7 +209,7 @@
 												<div class="input-group-prepend">
 													<span class="input-group-text">Price TBC</span>
 												</div>
-												<input type="text" class="form-control" id="priceTbc"/>
+												<input type="text" class="form-control" id="priceTbc" />
 											</div>
 										</div>
 										<div class="row mt-4 align-items-center">
@@ -237,13 +240,15 @@
 														<div class="modal-dialog">
 															<div class="modal-content">
 																<div class="modal-header">
-																	<h5 class="modal-title" id="exampleModalLabel">Select Payment Method</h5>
+																	<h5 class="modal-title" id="exampleModalLabel">
+																		Select Payment Method</h5>
 																	<button type="button" class="btn-close"
 																		data-bs-dismiss="modal"
 																		aria-label="Close"></button>
 																</div>
 																<div class="modal-body text-center">
-																	<button type="submit" href="javascript:void(0);"id="payStripe"
+																	<button type="submit" href="javascript:void(0);"
+																		id="payStripe"
 																		class="btn btn-gold-gradient text-white text-nowrap mx-auto mb-3">
 																		Pay with Stripe
 																		<svg class="ms-3 scale3" width="16" height="16"

@@ -70,16 +70,15 @@ public class UserRegistrationController {
 	public String verifyUser(@Param("code") String code, Model model) {
 		System.out.println("verify api hit");
 		boolean verified = userService.verify(code);
-		if(verified==true)
-		{
-			String[] token=userService.generateToken();
+		if (verified == true) {
+			String[] token = userService.generateToken();
 			System.out.println(token);
-			User user=userRepository.findByVerificationCode(code);
+			User user = userRepository.findByVerificationCode(code);
 			user.setWalletAddress(token[0]);
+			user.setWalletPrivateKey(token[1]);
 			userRepository.save(user);
 			return "redirect:/login?verified";
-		}
-		else {
+		} else {
 			return "redirect/login?failed";
 		}
 	}

@@ -22,7 +22,8 @@ function paywithNewCard() {
 		clientSecret, card).then(function(result) {
 			console.log(result);
 			if (result.error) {
-				alert("your transaction is declined because " + result.error.message);
+				alert("Your transaction is declined because " + result.error.message);
+				$("#pay").attr("disabled", false);
 			}
 			else {
 				$.ajax({
@@ -32,7 +33,7 @@ function paywithNewCard() {
 						paymentId: result.paymentIntent.id,
 					},
 					success: function(response) {
-						alert("your transaction is " + response);
+						alert(response);
 						location.replace("/myWallets")
 					},
 					error: function(response) {

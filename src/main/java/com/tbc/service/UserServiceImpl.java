@@ -164,7 +164,6 @@ public class UserServiceImpl implements UserService {
 			userRepository.delete(user);
 			return false;
 		} else {
-
 			user.setEnabled(true);
 			user.setRoles("ROLE_USER");
 			String stripeId = RandomString.make(20);
@@ -234,15 +233,12 @@ public class UserServiceImpl implements UserService {
 		Map<String, String> map = new HashMap<>();
 		map.put("address", address);
 		map.put("amount", String.valueOf(amount));
-
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<Void> response = restTemplate.postForEntity(url, map, Void.class);
-
 		if (response.getStatusCode() == HttpStatus.OK)
 			status = true;
 		else
 			status = false;
-
 		return status;
 	}
 

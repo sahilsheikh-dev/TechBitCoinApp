@@ -3,6 +3,7 @@ package com.tbc.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -242,24 +243,31 @@ public class MainController {
 		Double purchasePrice = (double) (paymentIntent.getAmount() / 100);
 		System.out.println(purchasePrice);
 		buy(purchasePrice);
-		return "success";
+		return "Your Transaction is Success";
 	}
 
 	@PostMapping("/payFromDashboard")
 	public @ResponseBody String payFromDashboard(@RequestParam("paymentId") String paymentId, HttpSession httpSession)
 			throws StripeException {
-		System.out.println("in paywithDashboard");
 		PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentId);
 		String paymentResponse = paymentIntent.toJson();
 		System.out.println(paymentResponse);
 		Double purchasePrice = (double) (paymentIntent.getAmount() / 100);
-		System.out.println(purchasePrice);
-		setBtcTable(purchasePrice);
-		setTransactionTable(purchasePrice);
+
 		User user = loginDetails();
 		long amount = (long) (purchasePrice / 5);
-		userService.transferToken(user.getWalletAddress(), amount);
-		return "success";
+		try {
+			boolean transferTokenStatus = userService.transferToken(user.getWalletAddress(), amount);
+			if (transferTokenStatus) {
+				setBtcTable(purchasePrice);
+				setTransactionTable(purchasePrice);
+				return "Your Transaction is Success";
+			} else {
+				return "Internal Server Error Please Try Again";
+			}
+		} catch (Exception e) {
+			return "Internal Server Error Please Try Again";
+		}
 	}
 
 	@PostMapping("/coinIpn")
@@ -268,11 +276,21 @@ public class MainController {
 			User user = loginDetails();
 			double purchasePrice = (double) request.getSession().getAttribute("from");
 			long amount = (long) (purchasePrice / 5);
-			userService.transferToken(user.getWalletAddress(), amount);
-			setBtcTable(purchasePrice);
-			setTransactionTable(purchasePrice);
-			request.getSession().invalidate();
-			return "redirect:/";
+			try {
+				boolean transferTokenStatus = userService.transferToken(user.getWalletAddress(), amount);
+				if (transferTokenStatus) {
+					setBtcTable(purchasePrice);
+					setTransactionTable(purchasePrice);
+					request.getSession().invalidate();
+					return "redirect:/";
+				} else {
+					request.getSession().invalidate();
+					return "redirect:/?paymenetStatus";
+				}
+			} catch (Exception e) {
+				request.getSession().invalidate();
+				return "redirect:/?paymenetStatus";
+			}
 		}
 		if (request.getSession().getAttribute("from").equals("package")) {
 			double purchasePrice = (double) request.getSession().getAttribute("from");
@@ -539,8 +557,13 @@ public class MainController {
 		System.out.println(walletAddress);
 		String[] balances = userService.getTokenBalance(walletAddress);
 		String tokenBalance = balances[1];
-		int tokenBal = Integer.parseInt(tokenBalance);
-		map.put("tokenBalUsd", String.format("%.02f", tokenBal * .61));
+		
+		BigInteger tokenBal = new BigInteger(tokenBalance);
+		BigInteger dollarConversion = new BigInteger("2");
+		BigInteger resultAmount = tokenBal.divide(dollarConversion);
+		
+		map.put("tokenBalUsd", String.format("%.02f", resultAmount.floatValue()));
+		
 		System.out.println(user.getRoles());
 		model.addAttribute(user);
 		String usd = String.format("%.02f", user.getTbcBalance() * .61);
@@ -552,7 +575,6 @@ public class MainController {
 		} else {
 			return "login?error";
 		}
-
 	}
 
 	@GetMapping("/registerSuccess")

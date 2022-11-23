@@ -15,7 +15,7 @@ console.log(clientSecret);
 var a = $('#priceTbc').val();
 console.log(a);
 function paywithcoin() {
-	console.log("hellp in coin oayment");
+	console.log("hellp in coin payment");
 	$("#payCoin").attr("disabled", true);
 $("#payStripe").attr("disabled", true);
 	console.log("hello in coin payment");
@@ -40,7 +40,8 @@ function paywithNewCard() {
 		clientSecret, card).then(function(result) {
 			console.log(result);
 			if (result.error) {
-				alert("your transaction is declined because " + result.error.message);
+				alert("Your transaction is declined because " + result.error.message);
+				$("#pay").attr("disabled", false);
 			}
 			else {
 				$.ajax({
@@ -50,11 +51,16 @@ function paywithNewCard() {
 						paymentId: result.paymentIntent.id,
 					},
 					success: function(response) {
-						alert("your transaction is " + response);
-						location.replace("/")
+						alert(response);
+						if (response === 'Your Transaction is Success') {
+							location.replace("/")
+						} else {
+							location.replace("/?paymenetStatus")
+						}
 					},
 					error: function(response) {
 						console.log(response);
+						location.replace("/?paymenetStatus")
 					}
 				});
 			}
