@@ -12,16 +12,20 @@ var style = {
 };
 var clientSecret = $('#secretId').val();
 console.log(clientSecret);
-var a = $('#abc').val();
+var a = $('#priceTbc').val();
 console.log(a);
 function paywithcoin() {
+	console.log("hellp in coin oayment");
+	$("#payCoin").attr("disabled", true);
+$("#payStripe").attr("disabled", true);
 	console.log("hello in coin payment");
-	var a = $('#abc').val();
+	var a = $('#priceTbc').val();
 	console.log(a);
 	var c = $.ajax({
 		type: "post",
 		url: "https://techbitcrypto.com/paywithcoin",
 		data: {
+			from:"dashBoard",
 			amount: a
 		},
 		success: function(response) {
@@ -43,7 +47,6 @@ function paywithNewCard() {
 					type: "Post",
 					url: "https://techbitcrypto.com/payFromDashboard",
 					data: {
-						remember: remember,
 						paymentId: result.paymentIntent.id,
 					},
 					success: function(response) {

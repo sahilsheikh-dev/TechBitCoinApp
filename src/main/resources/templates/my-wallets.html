@@ -112,48 +112,31 @@
 				</div>
 				<ul class="metismenu" id="menu">
 					<li class="nav-label first">Main Menu</li>
-					<li>
-						<a href="/" aria-expanded="false">
-							<i class="flaticon-144-layout"></i>
-							<span class="nav-text">Dashboard</span>
-						</a>
-					</li>
-					<li>
-						<a href="/myWallets" aria-expanded="false">
-							<i class="bi bi-wallet"></i>
-							<span class="nav-text">Packages</span>
-						</a>
-					</li>
-					<li>
-						<a href="/referralTransactions" aria-expanded="false">
-							<i class="bi bi-person-plus"></i>
-							<span class="nav-text">Referal Earnings</span>
-						</a>
-					</li>
-					<li>
-						<a href="/transaction" aria-expanded="false">
-							<i class="bi bi-arrow-left-right"></i>
-							<span class="nav-text">Transactions</span>
-						</a>
-					</li>
-					<li th:if="${user.roles=='ROLE_ADMIN'}" id="admin-option">
-						<a href="userControl" aria-expanded="false">
-							<i class="bi bi-people"></i>
-							<span class="nav-text">User Control</span>
-						</a>
-					</li>
-					<li th:if="${user.roles=='ROLE_ADMIN'}" id="admin-option">
-						<a href="/packagePurchased" aria-expanded="false">
-							<i class="bi bi-box"></i>
-							<span class="nav-text">Package Purchased</span>
-						</a>
-					</li>
-					<li th:if="${user.roles=='ROLE_ADMIN'}" id="admin-option">
-						<a href="/kycVerification" aria-expanded="false">
-							<i class="bi bi-shield-check"></i>
-							<span class="nav-text">KYC Verification</span>
-						</a>
-					</li>
+					<li><a href="/" aria-expanded="false"> <i class="flaticon-144-layout"></i> <span
+								class="nav-text">Dashboard</span>
+						</a></li>
+					<li><a href="/myWallets" aria-expanded="false"> <i class="bi bi-wallet"></i> <span
+								class="nav-text">Packages</span>
+						</a></li>
+					<li><a href="/referralTransactions" aria-expanded="false">
+							<i class="bi bi-person-plus"></i> <span class="nav-text">Referal
+								Earnings</span>
+						</a></li>
+					<li><a href="/transaction" aria-expanded="false"> <i class="bi bi-arrow-left-right"></i> <span
+								class="nav-text">Transactions</span>
+						</a></li>
+					<li th:if="${user.roles=='ROLE_ADMIN'}" id="admin-option"><a href="userControl"
+							aria-expanded="false"> <i class="bi bi-people"></i> <span class="nav-text">User
+								Control</span>
+						</a></li>
+					<li th:if="${user.roles=='ROLE_ADMIN'}" id="admin-option"><a href="/packagePurchased"
+							aria-expanded="false"> <i class="bi bi-box"></i> <span class="nav-text">Package
+								Purchased</span>
+						</a></li>
+					<li th:if="${user.roles=='ROLE_ADMIN'}" id="admin-option"><a href="/kycVerification"
+							aria-expanded="false"> <i class="bi bi-shield-check"></i> <span class="nav-text">KYC
+								Verification</span>
+						</a></li>
 				</ul>
 			</div>
 		</div>
@@ -177,6 +160,40 @@
 				<div th:if="${param.p2000}">
 					<div class="alert alert-success">You successfully bought a
 						package worth 2000</div>
+				</div>
+				<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+					aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="exampleModalLabel">Select Payment Method</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body text-center">
+								<a class="btnStripe btn btn-gold-gradient text-white text-nowrap mx-auto mb-3" id="payStripe" onclick="disableButtons()">Pay with stripe
+									<svg class="ms-3 scale3" width="16" height="16" viewBox="0 0 21 21" fill="none"
+										xmlns="http://www.w3.org/2000/svg">
+										<path
+											d="M16.9638 11.5104L16.9721 14.9391L3.78954 1.7565C3.22815 1.19511 2.31799 1.19511 1.75661 1.7565C1.19522 2.31789 1.19522 3.22805 1.75661 3.78943L14.9392 16.972L11.5105 16.9637L11.5105 16.9637C10.7166 16.9619 10.0715 17.6039 10.0696 18.3978C10.0677 19.1919 10.7099 19.8369 11.5036 19.8388L11.5049 19.3388L11.5036 19.8388L18.3976 19.8554L18.4146 19.8555L18.4159 19.8555C18.418 19.8555 18.42 19.8555 18.422 19.8555C19.2131 19.8533 19.8528 19.2114 19.8555 18.4231C19.8556 18.4196 19.8556 18.4158 19.8556 18.4117L19.8389 11.5035L19.8389 11.5035C19.8369 10.7097 19.1919 10.0676 18.3979 10.0695C17.604 10.0713 16.9619 10.7164 16.9638 11.5103L16.9638 11.5104Z"
+											fill="white" stroke="white"></path>
+									</svg>
+								</a><br>
+								<a class="btnCoin btn btn-gold-gradient text-white text-nowrap mx-auto mb-3" id="payCoin" onclick="paywithcoin()">Pay
+									with Coin
+									<svg class="ms-3 scale3" width="16" height="16" viewBox="0 0 21 21" fill="none"
+										xmlns="http://www.w3.org/2000/svg">
+										<path
+											d="M16.9638 11.5104L16.9721 14.9391L3.78954 1.7565C3.22815 1.19511 2.31799 1.19511 1.75661 1.7565C1.19522 2.31789 1.19522 3.22805 1.75661 3.78943L14.9392 16.972L11.5105 16.9637L11.5105 16.9637C10.7166 16.9619 10.0715 17.6039 10.0696 18.3978C10.0677 19.1919 10.7099 19.8369 11.5036 19.8388L11.5049 19.3388L11.5036 19.8388L18.3976 19.8554L18.4146 19.8555L18.4159 19.8555C18.418 19.8555 18.42 19.8555 18.422 19.8555C19.2131 19.8533 19.8528 19.2114 19.8555 18.4231C19.8556 18.4196 19.8556 18.4158 19.8556 18.4117L19.8389 11.5035L19.8389 11.5035C19.8369 10.7097 19.1919 10.0676 18.3979 10.0695C17.604 10.0713 16.9619 10.7164 16.9638 11.5103L16.9638 11.5104Z"
+											fill="white" stroke="white"></path>
+									</svg>
+								</a>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="row">
 					<div class="col-xl-3 col-sm-6 m-t35">
@@ -210,9 +227,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=100)}" th:if="${user.has100pack!='yes'}"> <span
-											class="text-success me-1">Buy
-											Now</span></a>
+									<a data-href="/buy?param1=100" data-value="100" th:if="${user.has100pack!='yes'}"
+										data-bs-toggle="modal" data-bs-target="#exampleModal" id="buyFW" ><span
+										class="text-success me-1">Buy Now</span></a>
 								</p>
 							</div>
 						</div>
@@ -248,9 +265,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=200)}" th:if="${user.has200pack!='yes'}"> <span
-											class="text-success me-1">Buy
-											Now</span></a>
+									<a data-href="/buy?param1=200" data-bs-toggle="modal" data-bs-target="#exampleModal"
+										id="buyFW" data-value="200" th:if="${user.has200pack!='yes'}"> <span
+											class="text-success me-1">Buy Now</span></a>
 								</p>
 							</div>
 						</div>
@@ -287,9 +304,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=500)}" th:if="${user.has500Pack!='yes'}"> <span
-											class="text-success me-1">Buy
-											Now</span></a>
+									<a data-href="/buy?param1=500" data-bs-toggle="modal" data-value="500"
+										data-bs-target="#exampleModal" id="buyFW" th:if="${user.has500Pack!='yes'}">
+										<span class="text-success me-1">Buy Now</span></a>
 								</p>
 							</div>
 						</div>
@@ -325,9 +342,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=1000)}" th:if="${user.has1000pack!='yes'}"> <span
-											class="text-success me-1">Buy
-											Now</span></a>
+									<a data-href="/buy?param1=1000" data-bs-toggle="modal" data-value="1000"
+										data-bs-target="#exampleModal" id="buyFW" th:if="${user.has1000pack!='yes'}">
+										<span class="text-success me-1">Buy Now</span></a>
 								</p>
 							</div>
 						</div>
@@ -364,8 +381,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=1500)}" th:if="${user.has1500pack!='yes'}"> <span
-											class="text-success me-1">Buy
+									<a data-href="/buy?param1=1500" data-bs-toggle="modal"
+										data-bs-target="#exampleModal" id="buyFW" data-value="1500"
+										th:if="${user.has1500pack!='yes'}"> <span class="text-success me-1">Buy
 											Now</span></a>
 								</p>
 							</div>
@@ -403,8 +421,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=2000)}" th:if="${user.has2000pack!='yes'}"> <span
-											class="text-success me-1">Buy
+									<a data-href="/buy?param1=2000" data-bs-toggle="modal"
+										data-bs-target="#exampleModal" id="buyFW" data-value="2000"
+										th:if="${user.has2000pack!='yes'}"> <span class="text-success me-1">Buy
 											Now</span></a>
 								</p>
 							</div>
@@ -443,8 +462,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=5000)}" th:if="${user.has5000pack!='yes'}"> <span
-											class="text-success me-1">Buy
+									<a data-href="/buy?param1=5000" data-bs-toggle="modal"
+										data-bs-target="#exampleModal" id="buyFW" data-value="5000"
+										th:if="${user.has5000pack!='yes'}"> <span class="text-success me-1">Buy
 											Now</span></a>
 								</p>
 							</div>
@@ -481,8 +501,9 @@
 											</filter>
 										</defs>
 									</svg>
-									<a th:href="@{/buy(param1=10000)}" th:if="${user.has10000pack!='yes'}"> <span
-											class="text-success me-1">Buy
+									<a data-href="/buy?param1=10000" data-bs-toggle="modal"
+										data-bs-target="#exampleModal" data-value="10000"
+										th:if="${user.has10000pack!='yes'}"> <span class="text-success me-1">Buy
 											Now</span></a>
 								</p>
 							</div>
@@ -577,6 +598,8 @@
 	</script>
 	<script th:src="@{/vendor/global/global.min.js}" type="text/javascript"></script>
 	<script th:src="@{/vendor/bootstrap-select/dist/js/bootstrap-select.min.js}" type="text/javascript"></script>
+	<script th:src="@{/js/myWallet.js}"></script>
+
 	<script th:src="@{/vendor/chart.js/Chart.bundle.min.js}" type="text/javascript"></script>
 	<script th:src="@{/vendor/peity/jquery.peity.min.js}" type="text/javascript"></script>
 	<script th:src="@{/vendor/apexchart/apexchart.js}" type="text/javascript"></script>

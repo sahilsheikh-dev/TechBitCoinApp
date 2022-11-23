@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.json.simple.JSONObject;
@@ -174,25 +175,34 @@ public class MainController {
 	}
 
 	@PostMapping("/paywithcoin")
-	public @ResponseBody String paywithcoin(@RequestParam("amount") double amount) {
+	public @ResponseBody String paywithcoin(HttpServletRequest request, @RequestParam("amount") double amount,
+			@RequestParam("from") String from, HttpSession session) {
 		String name = loginDetails().getName();
 		String email = loginDetails().getMail();
+		System.out.println(from);
 		double amoun = amount;
-		System.out.println(amoun);
-		String statusUrl = coinPaymentTransfer(name, email, amount);
+		request.getSession().setAttribute("from", from);
+		request.getSession().setAttribute("purchasePrice", amount);
+		System.out.println(request.getSession().getAttribute("from"));
+		System.out.println("PayWithCoin" + amoun);
+		String statusUrl = coinPaymentTransfer(request, name, email, amount);
 		System.out.println(statusUrl);
 		return statusUrl;
 	}
 
-	public String coinPaymentTransfer(String name, String email, double amount) {
+	public String coinPaymentTransfer(HttpServletRequest request, String name, String email, double amount) {
 		CoinPaymentsAPI api = new CoinPaymentsAPI("54ecd4924f98eb055003eee7a32b452c4a95cf6232dc9bb8e1e32aae88f1330f",
 				"49C27879A1921255475b101F0800A765be4e1EB23a2a40d4219371eB4c0aE3E6");
 
 		boolean status = false;
-
+		if (request.getSession().getAttribute("from").equals("package")) {
+			System.out.println("bought through package");
+		}
 		// Getting basic account information
 		JsonObject accountInfo = api.call("get_basic_info");
 		System.out.println(accountInfo.get("username").getAsString());
+		System.out.println(request.getSession().getAttribute("from"));
+
 		System.out.println(accountInfo.get("email").getAsString());
 		// Creating a transaction
 		// amount in dollar
@@ -204,109 +214,6 @@ public class MainController {
 		System.out.println(transactionInfo.get("qrcode_url").getAsString());
 		System.out.println(status);
 		return statusUrl;
-	}
-
-	@GetMapping("/kycVerification")
-	public String kycVerification(Model model) {
-		model.addAttribute("alluser", userRepository.findAll());
-		model.addAttribute("user", loginDetails());
-		return "kyc-verification";
-	}
-
-	@GetMapping("/viewUser/{id}")
-	public String viewUser(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
-		model.addAttribute("user", loginDetails());
-		Optional<User> user = userRepository.findById(id);
-		if (user.isPresent()) {
-			System.out.println(user.get());
-		}
-		ReferralTable rt = rr.findByReferralId(user.get().getReferedByPk());
-		model.addAttribute("rt", rt);
-		model.addAttribute("u", user.get());
-		return "viewUser";
-	}
-
-	@GetMapping("/verify/{id}")
-	public String verify(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
-		Optional<User> user = userRepository.findById(id);
-		if (user.isPresent()) {
-			System.out.println(user.get());
-		}
-		user.get().setStatus("verified");
-		userRepository.save(user.get());
-		return "redirect:/kycVerification?verified";
-	}
-
-	@GetMapping("/reject/{id}")
-	public String reject(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
-		Optional<User> user = userRepository.findById(id);
-		if (user.isPresent()) {
-			System.out.println(user.get());
-		}
-		user.get().setStatus("rejected");
-		userRepository.save(user.get());
-		return "redirect:/kycVerification?rejected";
-	}
-
-	@GetMapping("/activateUser/{id}")
-	public String activateUser(@PathVariable(value = "id") long id, Model model)
-			throws IOException, SchedulerException {
-		Optional<User> user = userRepository.findById(id);
-		if (user.isPresent()) {
-			System.out.println(user.get());
-		}
-		user.get().setRoles("ROLE_USER");
-		user.get().setIsDeleted(0);
-		userRepository.save(user.get());
-		return "redirect:/userControl?activated";
-	}
-
-	@GetMapping("/blockUser/{id}")
-	public String blockUser(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
-		Optional<User> user = userRepository.findById(id);
-		if (user.isPresent()) {
-			System.out.println(user.get());
-		}
-		user.get().setRoles("ROLE_BLOCKED");
-		user.get().setIsDeleted(1);
-		userRepository.save(user.get());
-		return "redirect:/userControl?blocked";
-	}
-
-	@GetMapping("/buy")
-	public String buy(Model model, ModelMap map, @RequestParam("param1") int param1)
-			throws IOException, SchedulerException, StripeException {
-		Stripe.apiKey = stripeKey;
-		User user = loginDetails();
-		CustomerData customer = new CustomerData();
-		customer.setAmount((long) param1);
-		customer.setEmail(user.getMail());
-		model.addAttribute("c", customer);
-		PaymentIntentCreateParams params = PaymentIntentCreateParams.builder().setAmount((long) param1 * 100)
-				.setCurrency("inr").addPaymentMethodType("card").setCustomer(user.getStripeId()).build();
-		PaymentIntent paymentIntent = PaymentIntent.create(params);
-		System.out.println(paymentIntent.getClientSecret());
-		map.put("clientSecret", paymentIntent.getClientSecret());
-		return "buy500p";
-
-	}
-
-	@PostMapping("/buy2")
-	public String buy2(@ModelAttribute("user") UserRegistrationDto registrationDto, Model model, ModelMap map)
-			throws StripeException {
-		System.out.println("in post" + registrationDto.getAmount());
-		int price = registrationDto.getAmount() * 5;
-		Stripe.apiKey = stripeKey;
-		User user = loginDetails();
-		CustomerData customer = new CustomerData();
-		customer.setAmount((long) price);
-		customer.setEmail(user.getMail());
-		model.addAttribute("c", customer);
-		PaymentIntentCreateParams params = PaymentIntentCreateParams.builder().setAmount((long) price * 100)
-				.setCurrency("inr").addPaymentMethodType("card").setCustomer(user.getStripeId()).build();
-		PaymentIntent paymentIntent = PaymentIntent.create(params);
-		map.put("clientSecret", paymentIntent.getClientSecret());
-		return "dashboardBuy";
 	}
 
 	@RequestMapping("/paymentForm")
@@ -343,7 +250,6 @@ public class MainController {
 			throws StripeException {
 		System.out.println("in paywithDashboard");
 		PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentId);
-
 		String paymentResponse = paymentIntent.toJson();
 		System.out.println(paymentResponse);
 		Double purchasePrice = (double) (paymentIntent.getAmount() / 100);
@@ -354,6 +260,27 @@ public class MainController {
 		long amount = (long) (purchasePrice / 5);
 		userService.transferToken(user.getWalletAddress(), amount);
 		return "success";
+	}
+
+	@PostMapping("/coinIpn")
+	public String ipn(HttpServletRequest request) {
+		if (request.getSession().getAttribute("from").equals("dashBoard")) {
+			User user = loginDetails();
+			double purchasePrice = (double) request.getSession().getAttribute("from");
+			long amount = (long) (purchasePrice / 5);
+			userService.transferToken(user.getWalletAddress(), amount);
+			setBtcTable(purchasePrice);
+			setTransactionTable(purchasePrice);
+			request.getSession().invalidate();
+			return "redirect:/";
+		}
+		if (request.getSession().getAttribute("from").equals("package")) {
+			double purchasePrice = (double) request.getSession().getAttribute("from");
+			buy(purchasePrice);
+			request.getSession().invalidate();
+			return "redirect:/myWallets";
+		}
+		return "null";
 	}
 
 	public void setBtcTable(Double purchasePrice) {
@@ -367,7 +294,6 @@ public class MainController {
 		bpt.setStatus("success");
 		bpt.setUser(user);
 		btcptr.save(bpt);
-
 	}
 
 	public void setTransactionTable(Double purchasePrice) {
@@ -503,6 +429,109 @@ public class MainController {
 		return "referal-tranasactions";
 	}
 
+	@GetMapping("/kycVerification")
+	public String kycVerification(Model model) {
+		model.addAttribute("alluser", userRepository.findAll());
+		model.addAttribute("user", loginDetails());
+		return "kyc-verification";
+	}
+
+	@GetMapping("/viewUser/{id}")
+	public String viewUser(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
+		model.addAttribute("user", loginDetails());
+		Optional<User> user = userRepository.findById(id);
+		if (user.isPresent()) {
+			System.out.println(user.get());
+		}
+		ReferralTable rt = rr.findByReferralId(user.get().getReferedByPk());
+		model.addAttribute("rt", rt);
+		model.addAttribute("u", user.get());
+		return "viewUser";
+	}
+
+	@GetMapping("/verify/{id}")
+	public String verify(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
+		Optional<User> user = userRepository.findById(id);
+		if (user.isPresent()) {
+			System.out.println(user.get());
+		}
+		user.get().setStatus("verified");
+		userRepository.save(user.get());
+		return "redirect:/kycVerification?verified";
+	}
+
+	@GetMapping("/reject/{id}")
+	public String reject(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
+		Optional<User> user = userRepository.findById(id);
+		if (user.isPresent()) {
+			System.out.println(user.get());
+		}
+		user.get().setStatus("rejected");
+		userRepository.save(user.get());
+		return "redirect:/kycVerification?rejected";
+	}
+
+	@GetMapping("/activateUser/{id}")
+	public String activateUser(@PathVariable(value = "id") long id, Model model)
+			throws IOException, SchedulerException {
+		Optional<User> user = userRepository.findById(id);
+		if (user.isPresent()) {
+			System.out.println(user.get());
+		}
+		user.get().setRoles("ROLE_USER");
+		user.get().setIsDeleted(0);
+		userRepository.save(user.get());
+		return "redirect:/userControl?activated";
+	}
+
+	@GetMapping("/blockUser/{id}")
+	public String blockUser(@PathVariable(value = "id") long id, Model model) throws IOException, SchedulerException {
+		Optional<User> user = userRepository.findById(id);
+		if (user.isPresent()) {
+			System.out.println(user.get());
+		}
+		user.get().setRoles("ROLE_BLOCKED");
+		user.get().setIsDeleted(1);
+		userRepository.save(user.get());
+		return "redirect:/userControl?blocked";
+	}
+
+	@GetMapping("/buy")
+	public String buy(Model model, ModelMap map, @RequestParam("param1") int param1)
+			throws IOException, SchedulerException, StripeException {
+		Stripe.apiKey = stripeKey;
+		User user = loginDetails();
+		CustomerData customer = new CustomerData();
+		customer.setAmount((long) param1);
+		customer.setEmail(user.getMail());
+		model.addAttribute("c", customer);
+		PaymentIntentCreateParams params = PaymentIntentCreateParams.builder().setAmount((long) param1 * 100)
+				.setCurrency("inr").addPaymentMethodType("card").setCustomer(user.getStripeId()).build();
+		PaymentIntent paymentIntent = PaymentIntent.create(params);
+		System.out.println(paymentIntent.getClientSecret());
+		map.put("clientSecret", paymentIntent.getClientSecret());
+		return "buy500p";
+
+	}
+
+	@PostMapping("/buy2")
+	public String buy2(@ModelAttribute("user") UserRegistrationDto registrationDto, Model model, ModelMap map)
+			throws StripeException {
+		System.out.println("in post" + registrationDto.getAmount());
+		int price = registrationDto.getAmount() * 5;
+		Stripe.apiKey = stripeKey;
+		User user = loginDetails();
+		CustomerData customer = new CustomerData();
+		customer.setAmount((long) price);
+		customer.setEmail(user.getMail());
+		model.addAttribute("c", customer);
+		PaymentIntentCreateParams params = PaymentIntentCreateParams.builder().setAmount((long) price * 100)
+				.setCurrency("inr").addPaymentMethodType("card").setCustomer(user.getStripeId()).build();
+		PaymentIntent paymentIntent = PaymentIntent.create(params);
+		map.put("clientSecret", paymentIntent.getClientSecret());
+		return "dashboardBuy";
+	}
+
 	@GetMapping("/")
 	public String home(Model model, ModelMap map) throws IOException, SchedulerException {
 		User user = loginDetails();
@@ -544,13 +573,15 @@ public class MainController {
 	}
 
 	@GetMapping("/myWallets")
-	public String myWallets(Model model) {
+	public String myWallets(Model model, HttpServletRequest request) {
 		PurchaseTable pt = new PurchaseTable();
 		User user = loginDetails();
 		long id = user.getId();
 		model.addAttribute("pt", userService.pt());
 		model.addAttribute("user", user);
 		System.out.println(pt.getAmountDeposited());
+		System.out.println(request.getSession().getAttribute("from"));
+
 		model.addAttribute("allpt", userService.allPt());
 		return "my-wallets";
 	}

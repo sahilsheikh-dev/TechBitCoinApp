@@ -14,26 +14,9 @@ var clientSecret = $('#secretId').val();
 console.log(clientSecret);
 var a = $('#abc').val();
 console.log(a);
-function paywithcoin() {
-	$("#payc").attr("disabled", true);
-	console.log("hello in coin payment");
-	var a = $('#abc').val();
-	console.log(a);
-	var c = $.ajax({
-		type: "post",
-		url: "https://techbitcrypto.com/paywithcoin",
-		data: {
-			amount: a
-		},
-		success: function(response) {
-			location.replace(response)
-		}
-	})
-}
-var remember = $("remember").val();
-console.log(remember);
 function paywithNewCard() {
 	$("#pay").attr("disabled", true);
+	
 	console.log(document.getElementById("#pay"));
 	stripe.handleCardPayment(
 		clientSecret, card).then(function(result) {
@@ -46,7 +29,6 @@ function paywithNewCard() {
 					type: "Post",
 					url: "https://techbitcrypto.com/payWithNewCard",
 					data: {
-						remember: remember,
 						paymentId: result.paymentIntent.id,
 					},
 					success: function(response) {
